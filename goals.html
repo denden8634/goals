@@ -253,7 +253,7 @@ function progBar(tasks){
 
 // Input row
 function inputRow(key,ph){
-  return`<div class="input-row"><input class="main-input" id="inp-${key}" placeholder="${ph}" value="${esc(S[key]||"")}"><button class="add-btn" onclick="handleAdd('${key}')">+</button></div>`;
+  return`<div class="input-row"><input class="main-input" id="inp-${key}" placeholder="${ph}" value=""><button class="add-btn" onclick="handleAdd('${key}')">+</button></div>`;
 }
 
 // Week input
