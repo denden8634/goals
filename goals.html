@@ -276,13 +276,19 @@ function toggleHabit(id){const k="habit_done_"+id+"_"+dp();localStorage.setItem(
 // Handlers
 function handleAdd(key){
   const el=document.getElementById("inp-"+key);if(!el)return;
+  const val=el.value;
   const period={yearInput:yp(),monthInput:mp(),dayInput:dp(),habitInput:"habit"}[key];
-  if(addTask(el.value,period)){el.value="";S[key]="";}
+  S[key]="";
+  el.value="";
+  addTask(val,period);
 }
 function handleAddWeek(wKey){
   const el=document.getElementById("winp-"+wKey);if(!el)return;
+  const val=el.value;
   const [yr,wk]=wKey.split("-").map(Number);
-  if(addTask(el.value,wp(yr,wk))){el.value="";const wi={...S.weekInputs};wi[wKey]="";S.weekInputs=wi;}
+  const wi={...S.weekInputs};wi[wKey]="";S.weekInputs=wi;
+  el.value="";
+  addTask(val,wp(yr,wk));
 }
 
 // Modal
