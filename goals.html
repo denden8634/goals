@@ -78,7 +78,11 @@ const DAYS=["日","月","火","水","木","金","土"];
 
 // GAS
 async function loadGAS(){try{const r=await fetch(GAS_URL);const j=await r.json();if(j.ok&&Array.isArray(j.data)&&j.data.length>0)return j.data;}catch(e){}return null;}
-async function saveGAS(d){try{await fetch(GAS_URL,{method:"POST",body:JSON.stringify(d)});}catch(e){}}
+async function saveGAS(d){
+  try{
+    await fetch(GAS_URL,{method:"POST",body:JSON.stringify(d),mode:"no-cors"});
+  }catch(e){console.log("GAS save error:",e);}
+}
 
 // Date utils
 function uid(){return Math.random().toString(36).slice(2)+Date.now().toString(36);}
@@ -404,8 +408,12 @@ function attachListeners(){
 // Init
 set({syncing:true});
 loadGAS().then(data=>{
-  if(data&&data.length>0){S.tasks=data;localStorage.setItem(KEY,JSON.stringify(data));}
-  set({syncing:false});
+  if(data&&data.length>0){
+    S.tasks=data;
+    localStorage.setItem(KEY,JSON.stringify(data));
+  }
+  S.syncing=false;
+  render();
 });
 </script>
 </body>
