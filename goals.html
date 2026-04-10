@@ -80,7 +80,11 @@ const DAYS=["日","月","火","水","木","金","土"];
 async function loadGAS(){try{const r=await fetch(GAS_URL);const j=await r.json();if(j.ok&&Array.isArray(j.data)&&j.data.length>0)return j.data;}catch(e){}return null;}
 async function saveGAS(d){
   try{
-    await fetch(GAS_URL,{method:"POST",body:JSON.stringify(d),mode:"no-cors"});
+    await fetch(GAS_URL,{
+      method:"POST",
+      body:JSON.stringify(d),
+      headers:{"Content-Type":"text/plain"}
+    });
   }catch(e){console.log("GAS save error:",e);}
 }
 
