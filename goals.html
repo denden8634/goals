@@ -221,6 +221,54 @@ function submitSub(parentId){
 }
 
 // Build task HTML
+function monthTaskHTML(task){
+  const tid=task.id;
+  const d=D();
+  const subs=d.subs(tid);
+  const hasSubs=subs.length>0;
+  const chkClass=`chk ${task.done?"on":""}`;
+  const subCount=hasSubs?`<span style="font-size:11px;color:#aaa;margin-left:5px">${subs.filter(s=>s.done).length}/${subs.length}</span>`:"";
+  const dw=dispWeeks();
+
+  // 週番号ボタン 1,2,3,4
+  const weekBtns=dw.map(({year:y,week:w},i)=>
+    `<button class="opt-btn" onclick="moveToWeek('${tid}',${y},${w});toggleOpt('${tid}')">${i+1}</button>`
+  ).join("");
+  const optItems=[weekBtns,`<button class="opt-del" onclick="removeTask('${tid}')">✕</button>`].join("");
+
+  const subRows=hasSubs?`<div class="sub-list">${subs.map(sub=>{
+    const sc=`chk sm ${sub.done?"on":""}`;
+    const subOptItems=[
+      `<button class="opt-btn" onclick="set({movingToDay:'${sub.id}'});toggleSubOpt('${sub.id}')">今日へ</button>`,
+      `<button class="opt-del" onclick="removeTask('${sub.id}')">✕</button>`
+    ].join("");
+    return `<div class="sub-row">
+      <div class="${sc}" onclick="toggleTask('${sub.id}')">${sub.done?CHKSM:""}</div>
+      <span style="flex:1;font-size:13px;color:${sub.done?"#bbb":"#333"};text-decoration:${sub.done?"line-through":"none"};line-height:1.4">${esc(sub.text)}</span>
+      <button class="opt-toggle" onclick="toggleSubOpt('${sub.id}')">···</button>
+      <div id="subopt-${sub.id}" class="sub-opt-menu">${subOptItems}</div>
+    </div>`;
+  }).join("")}</div>`:"";
+
+  const subInputHTML=`<div id="subinp-${tid}" class="sub-input-wrap" style="display:none">
+    <div class="sub-input-area">
+      <input id="si-${tid}" class="sub-input" placeholder="小タスクを追加…">
+      <button class="opt-btn" onclick="submitSub('${tid}')">+</button>
+      <button class="opt-del" onclick="closeSubInput('${tid}')">✕</button>
+    </div>
+  </div>`;
+
+  return `<div class="task-wrap" data-tid="${tid}">
+    <div class="task-row glass-row">
+      <div class="${chkClass}" onclick="toggleTask('${tid}')">${task.done?CHKLG:""}</div>
+      <span style="flex:1;font-size:15px;color:${task.done?"#bbb":"#111"};text-decoration:${task.done?"line-through":"none"};line-height:1.5">${esc(task.text)}${subCount}</span>
+      <button class="opt-toggle" id="optbtn-${tid}" onclick="toggleOpt('${tid}')">···</button>
+    </div>
+    <div id="opt-${tid}" class="opt-menu" style="display:none">${optItems}</div>
+    ${subRows}${subInputHTML}
+  </div>`;
+}
+
 function taskHTML(task, compact=false, actionLabel="", actionFn="", showSrc=false){
   const d=D();
   const subs=d.subs(task.id);
@@ -388,7 +436,7 @@ function render(){
     h+=`<div style="margin-top:16px">${progBar([...d.monthTasks,...d.monthDone])}${inputRow("monthInput","今月の目標を追加…")}
       <div style="margin-top:10px">
         ${d.monthTasks.length===0&&d.monthDone.length===0?'<p class="empty-msg">今月の目標を追加しよう</p>':""}
-        ${d.monthTasks.map(t=>taskHTML(t,false,"今週へ",`set({movingToWeek:'${t.id}'})`)).join("")}
+        ${d.monthTasks.map(t=>monthTaskHTML(t)).join("")}
         ${d.monthDone.length>0?`<div style="margin-top:8px"><p style="font-size:11px;color:#333;margin:0 0 6px 2px">完了 ${d.monthDone.length}件</p>${d.monthDone.map(t=>taskHTML(t)).join("")}</div>`:""}
       </div></div>`;
   }
