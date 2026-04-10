@@ -264,7 +264,7 @@ function monthTaskHTML(task){
       <span style="flex:1;font-size:15px;color:${task.done?"#bbb":"#111"};text-decoration:${task.done?"line-through":"none"};line-height:1.5">${esc(task.text)}${subCount}</span>
       <button class="opt-toggle" id="optbtn-${tid}" onclick="toggleOpt('${tid}')">···</button>
     </div>
-    <div id="opt-${tid}" class="opt-menu" style="display:none">${optItems}</div>
+    <div id="opt-${tid}" class="opt-menu">${optItems}</div>
     ${subRows}${subInputHTML}
   </div>`;
 }
