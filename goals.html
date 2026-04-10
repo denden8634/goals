@@ -132,7 +132,7 @@ function D(){
     dayCarry:t.filter(x=>x.period.startsWith("d")&&dayPast(x.period)&&!x.done&&!x.parentId),
     habitTasks:t.filter(x=>x.period==="habit"),
     weekCarry:t.filter(x=>{if(!x.period.startsWith("w")||x.done||x.parentId)return false;const m=x.period.match(/^w(\d+)-(\d+)$/);if(!m)return false;return weekPast(+m[1],+m[2]);}),
-    completedAll:t.filter(x=>{if(x.period===YP||x.parentId)return false;if(x.period.startsWith("d")&&dayPast(x.period)&&x.done)return true;if(x.period.startsWith("w")&&x.done)return true;if(x.period.startsWith("m")&&x.done)return true;return false;}).sort((a,b)=>b.period.localeCompare(a.period)),
+    completedAll:t.filter(x=>{if(x.period===YP)return false;if(x.period.startsWith("d")&&dayPast(x.period)&&x.done)return true;if(x.period.startsWith("w")&&x.done)return true;if(x.period.startsWith("m")&&x.done)return true;return false;}).sort((a,b)=>b.period.localeCompare(a.period)),
     wTasks:(y,w)=>t.filter(x=>x.period===wp(y,w)&&!x.done&&!x.parentId),
     wDone:(y,w)=>t.filter(x=>x.period===wp(y,w)&&x.done&&!x.parentId),
     subs:pid=>t.filter(x=>x.parentId===pid),
@@ -400,14 +400,16 @@ function attachListeners(){
     el.addEventListener("compositionstart",()=>c=true);
     el.addEventListener("compositionend",()=>{c=false;});
     el.addEventListener("keydown",e=>{if(e.key==="Enter"&&!c){e.preventDefault();handleAdd(key);}});
-    // フリック入力対応: inputイベントで改行文字を検知
+    el.addEventListener("keyup",e=>{if(e.key==="Enter"&&!c){e.preventDefault();handleAdd(key);}});
     el.addEventListener("input",e=>{
-      S[key]=e.target.value;
-      if(!c && e.target.value.includes("\n")){
-        e.target.value=e.target.value.replace(/\n/g,"");
+      const v=e.target.value;
+      if(!c && (v.endsWith("\n") || v.includes("\n"))){
+        e.target.value=v.replace(/\n/g,"");
         S[key]=e.target.value;
         handleAdd(key);
+        return;
       }
+      S[key]=v;
     });
   });
   document.querySelectorAll("[id^='winp-']").forEach(el=>{
@@ -416,13 +418,17 @@ function attachListeners(){
     el.addEventListener("compositionstart",()=>c=true);
     el.addEventListener("compositionend",()=>{c=false;});
     el.addEventListener("keydown",e=>{if(e.key==="Enter"&&!c){e.preventDefault();handleAddWeek(wKey);}});
+    el.addEventListener("keyup",e=>{if(e.key==="Enter"&&!c){e.preventDefault();handleAddWeek(wKey);}});
     el.addEventListener("input",e=>{
-      const wi={...S.weekInputs};wi[wKey]=e.target.value;S.weekInputs=wi;
-      if(!c && e.target.value.includes("\n")){
-        e.target.value=e.target.value.replace(/\n/g,"");
+      const v=e.target.value;
+      const wi={...S.weekInputs};
+      if(!c && (v.endsWith("\n") || v.includes("\n"))){
+        e.target.value=v.replace(/\n/g,"");
         wi[wKey]=e.target.value;S.weekInputs=wi;
         handleAddWeek(wKey);
+        return;
       }
+      wi[wKey]=v;S.weekInputs=wi;
     });
     el.addEventListener("keydown",e=>{if(e.key==="Enter"&&!c)handleAddWeek(wKey);});
     el.addEventListener("input",e=>{const wi={...S.weekInputs};wi[wKey]=e.target.value;S.weekInputs=wi;});
