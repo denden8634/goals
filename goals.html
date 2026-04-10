@@ -262,10 +262,11 @@ function monthTaskHTML(task){
     <div class="task-row glass-row">
       <div class="${chkClass}" onclick="toggleTask('${tid}')">${task.done?CHKLG:""}</div>
       <span style="flex:1;font-size:15px;color:${task.done?"#bbb":"#111"};text-decoration:${task.done?"line-through":"none"};line-height:1.5">${esc(task.text)}${subCount}</span>
-      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
-        ${dw.map(({year:y,week:w},i)=>`<button class="opt-btn" onclick="moveToWeek('${tid}',${y},${w})" style="min-width:24px;padding:4px 6px">${i+1}</button>`).join("")}
-        <button class="opt-del" onclick="removeTask('${tid}')">✕</button>
-      </div>
+      <button class="opt-toggle" onclick="toggleOpt('${tid}')">···</button>
+    </div>
+    <div id="opt-${tid}" class="opt-menu">
+      ${dw.map(({year:y,week:w},i)=>`<button class="opt-btn" onclick="moveToWeek('${tid}',${y},${w});toggleOpt('${tid}')">${i+1}</button>`).join("")}
+      <button class="opt-del" onclick="removeTask('${tid}');toggleOpt('${tid}')">✕</button>
     </div>
     ${subRows}${subInputHTML}
   </div>`;
