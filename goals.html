@@ -132,7 +132,19 @@ function D(){
     dayCarry:t.filter(x=>x.period.startsWith("d")&&dayPast(x.period)&&!x.done&&!x.parentId),
     habitTasks:t.filter(x=>x.period==="habit"),
     weekCarry:t.filter(x=>{if(!x.period.startsWith("w")||x.done||x.parentId)return false;const m=x.period.match(/^w(\d+)-(\d+)$/);if(!m)return false;return weekPast(+m[1],+m[2]);}),
-    completedAll:t.filter(x=>{if(x.period===YP)return false;if(x.period.startsWith("d")&&dayPast(x.period)&&x.done)return true;if(x.period.startsWith("w")&&x.done)return true;if(x.period.startsWith("m")&&x.done)return true;return false;}).sort((a,b)=>b.period.localeCompare(a.period)),
+    completedAll:(()=>{
+      // sourceIdを持つタスクのsourceIdセットを作る（今日へ移動済みのオリジナルを除外）
+      const movedIds=new Set(t.filter(x=>x.sourceId).map(x=>x.sourceId));
+      return t.filter(x=>{
+        if(x.period===YP)return false;
+        // 今日へ移動されたオリジナル（週タスク）は除外
+        if(movedIds.has(x.id)&&x.period.startsWith("w"))return false;
+        if(x.period.startsWith("d")&&dayPast(x.period)&&x.done)return true;
+        if(x.period.startsWith("w")&&x.done)return true;
+        if(x.period.startsWith("m")&&x.done)return true;
+        return false;
+      }).sort((a,b)=>b.period.localeCompare(a.period));
+    })(),
     wTasks:(y,w)=>t.filter(x=>x.period===wp(y,w)&&!x.done&&!x.parentId),
     wDone:(y,w)=>t.filter(x=>x.period===wp(y,w)&&x.done&&!x.parentId),
     subs:pid=>t.filter(x=>x.parentId===pid),
