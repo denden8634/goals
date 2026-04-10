@@ -183,7 +183,19 @@ const CHKSM=`<svg width="9" height="9" viewBox="0 0 9 9"><path d="M1.5 4.5L3.5 6
 // Toggle option menu
 function toggleOpt(id){
   const m=document.getElementById("opt-"+id);
-  if(m)m.classList.toggle("open");
+  if(!m)return;
+  // インライン表示（display:none/flex切り替え）とクラス方式の両対応
+  if(m.style.display==="none"||m.style.display===""){
+    // 他を全部閉じる
+    document.querySelectorAll(".opt-menu").forEach(el=>{
+      if(el.id!=="opt-"+id){el.style.display="none";el.classList.remove("open");}
+    });
+    m.style.display="flex";
+    m.classList.add("open");
+  } else {
+    m.style.display="none";
+    m.classList.remove("open");
+  }
 }
 function toggleSubOpt(id){
   const m=document.getElementById("subopt-"+id);
@@ -262,11 +274,13 @@ function monthTaskHTML(task){
     <div class="task-row glass-row">
       <div class="${chkClass}" onclick="toggleTask('${tid}')">${task.done?CHKLG:""}</div>
       <span style="flex:1;font-size:15px;color:${task.done?"#bbb":"#111"};text-decoration:${task.done?"line-through":"none"};line-height:1.5">${esc(task.text)}${subCount}</span>
-      <button class="opt-toggle" onclick="toggleOpt('${tid}')">···</button>
-    </div>
-    <div id="opt-${tid}" class="opt-menu">
-      ${dw.map(({year:y,week:w},i)=>`<button class="opt-btn" onclick="moveToWeek('${tid}',${y},${w});toggleOpt('${tid}')">${i+1}</button>`).join("")}
-      <button class="opt-del" onclick="removeTask('${tid}');toggleOpt('${tid}')">✕</button>
+      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+        <button class="opt-toggle" onclick="toggleOpt('${tid}')">···</button>
+        <div id="opt-${tid}" class="opt-menu" style="position:static;display:none;gap:4px;align-items:center">
+          ${dw.map(({year:y,week:w},i)=>`<button class="opt-btn" onclick="moveToWeek('${tid}',${y},${w});toggleOpt('${tid}')" style="padding:4px 7px;min-width:26px">${i+1}</button>`).join("")}
+          <button class="opt-del" onclick="removeTask('${tid}');toggleOpt('${tid}')">✕</button>
+        </div>
+      </div>
     </div>
     ${subRows}${subInputHTML}
   </div>`;
