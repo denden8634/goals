@@ -128,7 +128,7 @@ function D(){
     dayCarry:t.filter(x=>x.period.startsWith("d")&&dayPast(x.period)&&!x.done&&!x.parentId),
     habitTasks:t.filter(x=>x.period==="habit"),
     weekCarry:t.filter(x=>{if(!x.period.startsWith("w")||x.done||x.parentId)return false;const m=x.period.match(/^w(\d+)-(\d+)$/);if(!m)return false;return weekPast(+m[1],+m[2]);}),
-    completedAll:t.filter(x=>{if(x.period===YP||x.parentId)return false;if(x.period.startsWith("d")&&dayPast(x.period)&&x.done)return true;if(x.period.startsWith("w")&&x.done){const m=x.period.match(/^w(\d+)-(\d+)$/);if(!m)return false;return weekPast(+m[1],+m[2]);}if(x.period.startsWith("m")&&x.done)return true;return false;}).sort((a,b)=>b.period.localeCompare(a.period)),
+    completedAll:t.filter(x=>{if(x.period===YP||x.parentId)return false;if(x.period.startsWith("d")&&dayPast(x.period)&&x.done)return true;if(x.period.startsWith("w")&&x.done)return true;if(x.period.startsWith("m")&&x.done)return true;return false;}).sort((a,b)=>b.period.localeCompare(a.period)),
     wTasks:(y,w)=>t.filter(x=>x.period===wp(y,w)&&!x.done&&!x.parentId),
     wDone:(y,w)=>t.filter(x=>x.period===wp(y,w)&&x.done&&!x.parentId),
     subs:pid=>t.filter(x=>x.parentId===pid),
@@ -285,6 +285,8 @@ function handleAdd(key){
   S[key]="";
   el.value="";
   addTask(val,period);
+  // エンター後に自動でフォーカスを戻す
+  setTimeout(()=>{const el2=document.getElementById("inp-"+key);if(el2)el2.focus();},50);
 }
 function handleAddWeek(wKey){
   const el=document.getElementById("winp-"+wKey);if(!el)return;
@@ -293,6 +295,7 @@ function handleAddWeek(wKey){
   const wi={...S.weekInputs};wi[wKey]="";S.weekInputs=wi;
   el.value="";
   addTask(val,wp(yr,wk));
+  setTimeout(()=>{const el2=document.getElementById("winp-"+wKey);if(el2)el2.focus();},50);
 }
 
 // Modal
