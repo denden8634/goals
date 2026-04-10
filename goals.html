@@ -359,10 +359,10 @@ function render(){
             ${(wt.length+wd.length)>0?`<span style="font-size:12px;color:${ic?"#aaa":"#ccc"}">${wd.length}/${wt.length+wd.length}</span>`:""}
           </div>
           <div style="padding:8px 14px">
-            ${wt.length===0&&wd.length===0?'<p style="font-size:13px;color:#ccc;margin:4px 0 6px">タスクなし</p>':""}
-            ${wt.map(t=>taskHTML(t,true,"今日へ",`set({movingToDay:'${t.id}'})`)).join("")}
-            ${wd.map(t=>taskHTML(t,true)).join("")}
             ${weekInput(wk)}
+            ${wt.length===0&&wd.length===0?'<p style="font-size:13px;color:#ccc;margin:4px 0 6px">タスクなし</p>':""}
+            ${wt.map(t=>taskHTML(t,true,"今日へ",`set({movingToDay:'${t.id}'})`)). join("")}
+            ${wd.map(t=>taskHTML(t,true)).join("")}
           </div>
         </div>`;
       }).join("")}
@@ -394,15 +394,32 @@ function attachListeners(){
     const el=document.getElementById("inp-"+key);if(!el)return;
     let c=false;
     el.addEventListener("compositionstart",()=>c=true);
-    el.addEventListener("compositionend",()=>c=false);
-    el.addEventListener("keydown",e=>{if(e.key==="Enter"&&!c)handleAdd(key);});
-    el.addEventListener("input",e=>{S[key]=e.target.value;});
+    el.addEventListener("compositionend",()=>{c=false;});
+    el.addEventListener("keydown",e=>{if(e.key==="Enter"&&!c){e.preventDefault();handleAdd(key);}});
+    // フリック入力対応: inputイベントで改行文字を検知
+    el.addEventListener("input",e=>{
+      S[key]=e.target.value;
+      if(!c && e.target.value.includes("\n")){
+        e.target.value=e.target.value.replace(/\n/g,"");
+        S[key]=e.target.value;
+        handleAdd(key);
+      }
+    });
   });
   document.querySelectorAll("[id^='winp-']").forEach(el=>{
     const wKey=el.id.replace("winp-","");
     let c=false;
     el.addEventListener("compositionstart",()=>c=true);
-    el.addEventListener("compositionend",()=>c=false);
+    el.addEventListener("compositionend",()=>{c=false;});
+    el.addEventListener("keydown",e=>{if(e.key==="Enter"&&!c){e.preventDefault();handleAddWeek(wKey);}});
+    el.addEventListener("input",e=>{
+      const wi={...S.weekInputs};wi[wKey]=e.target.value;S.weekInputs=wi;
+      if(!c && e.target.value.includes("\n")){
+        e.target.value=e.target.value.replace(/\n/g,"");
+        wi[wKey]=e.target.value;S.weekInputs=wi;
+        handleAddWeek(wKey);
+      }
+    });
     el.addEventListener("keydown",e=>{if(e.key==="Enter"&&!c)handleAddWeek(wKey);});
     el.addEventListener("input",e=>{const wi={...S.weekInputs};wi[wKey]=e.target.value;S.weekInputs=wi;});
   });
