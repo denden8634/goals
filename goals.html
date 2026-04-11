@@ -161,11 +161,24 @@ function toggleTask(id){
   save(S.tasks.map(t=>{if(t.id===id)return{...t,done:nd};if(tg.sourceId&&t.id===tg.sourceId)return{...t,done:nd};if(t.sourceId&&t.sourceId===id)return{...t,done:nd};return t;}));
 }
 function removeTask(id){save(S.tasks.filter(t=>t.id!==id&&t.sourceId!==id&&t.parentId!==id));}
-function moveToWeek(taskId,yr,wk){
+function moveToWeek(taskId,yr,wk,btnEl){
   const src=S.tasks.find(t=>t.id===taskId);if(!src)return;
   const p=wp(yr,wk);
   if(!S.tasks.some(t=>t.sourceId===taskId&&t.period===p))save([...S.tasks,{id:uid(),text:src.text,period:p,done:src.done,sourceId:taskId}]);
   set({movingToWeek:null});
+  // 押した感: ボタン色付け→0.5秒後に元に戻す→1秒後にオプション閉じる
+  if(btnEl){
+    btnEl.style.background="#111";
+    btnEl.style.color="#fff";
+    setTimeout(()=>{
+      btnEl.style.background="";
+      btnEl.style.color="";
+    },500);
+  }
+  setTimeout(()=>{
+    const m=document.getElementById("opt-"+taskId);
+    if(m){m.style.display="none";m.classList.remove("open");}
+  },1000);
 }
 function moveToDay(taskId){
   const DP=dp(),src=S.tasks.find(t=>t.id===taskId);if(!src)return;
@@ -277,7 +290,7 @@ function monthTaskHTML(task){
       <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
         <button class="opt-toggle" onclick="toggleOpt('${tid}')">···</button>
         <div id="opt-${tid}" class="opt-menu" style="position:static;display:none;gap:4px;align-items:center">
-          ${dw.map(({year:y,week:w},i)=>`<button class="opt-btn" onclick="moveToWeek('${tid}',${y},${w});toggleOpt('${tid}')" style="padding:4px 7px;min-width:26px">${i+1}</button>`).join("")}
+          ${dw.map(({year:y,week:w},i)=>`<button class="opt-btn" onclick="moveToWeek('${tid}',${y},${w},this)" style="padding:4px 7px;min-width:26px">${i+1}</button>`).join("")}
           <button class="opt-del" onclick="removeTask('${tid}');toggleOpt('${tid}')">✕</button>
         </div>
       </div>
@@ -367,7 +380,7 @@ function handleAdd(key){
   el.value="";
   addTask(val,period);
   // エンター後に自動でフォーカスを戻す
-  setTimeout(()=>{const el2=document.getElementById("inp-"+key);if(el2)el2.focus();},50);
+  setTimeout(()=>{const el2=document.getElementById("inp-"+key);if(el2){el2.focus();el2.click();}},100);
 }
 function handleAddWeek(wKey){
   const el=document.getElementById("winp-"+wKey);if(!el)return;
@@ -376,7 +389,7 @@ function handleAddWeek(wKey){
   const wi={...S.weekInputs};wi[wKey]="";S.weekInputs=wi;
   el.value="";
   addTask(val,wp(yr,wk));
-  setTimeout(()=>{const el2=document.getElementById("winp-"+wKey);if(el2)el2.focus();},50);
+  setTimeout(()=>{const el2=document.getElementById("winp-"+wKey);if(el2){el2.focus();el2.click();}},100);
 }
 
 // Modal
