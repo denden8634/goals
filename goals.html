@@ -231,8 +231,8 @@ function toggleSubInput(parentId){
     if(inp){
       let composing=false;
       inp.addEventListener("compositionstart",()=>composing=true);
-      inp.addEventListener("compositionend",()=>composing=false);
-      inp.addEventListener("keydown",e=>{if(e.key==="Enter"&&!composing)submitSub(parentId);});
+      inp.addEventListener("compositionend",()=>{setTimeout(()=>{composing=false;},0);});
+      inp.addEventListener("keydown",e=>{if(e.key==="Enter"&&!composing&&!e.isComposing&&e.keyCode!==229)submitSub(parentId);});
       inp.focus();
     }
   }
@@ -488,9 +488,8 @@ function attachListeners(){
     const el=document.getElementById("inp-"+key);if(!el)return;
     let c=false;
     el.addEventListener("compositionstart",()=>c=true);
-    el.addEventListener("compositionend",()=>{c=false;});
-    el.addEventListener("keydown",e=>{if(e.key==="Enter"&&!c){e.preventDefault();handleAdd(key);}});
-    el.addEventListener("keyup",e=>{if(e.key==="Enter"&&!c){e.preventDefault();handleAdd(key);}});
+    el.addEventListener("compositionend",()=>{setTimeout(()=>{c=false;},0);});
+    el.addEventListener("keydown",e=>{if(e.key==="Enter"&&!c&&!e.isComposing&&e.keyCode!==229){e.preventDefault();handleAdd(key);}});
     el.addEventListener("input",e=>{
       const v=e.target.value;
       if(!c && (v.endsWith("\n") || v.includes("\n"))){
@@ -506,9 +505,8 @@ function attachListeners(){
     const wKey=el.id.replace("winp-","");
     let c=false;
     el.addEventListener("compositionstart",()=>c=true);
-    el.addEventListener("compositionend",()=>{c=false;});
-    el.addEventListener("keydown",e=>{if(e.key==="Enter"&&!c){e.preventDefault();handleAddWeek(wKey);}});
-    el.addEventListener("keyup",e=>{if(e.key==="Enter"&&!c){e.preventDefault();handleAddWeek(wKey);}});
+    el.addEventListener("compositionend",()=>{setTimeout(()=>{c=false;},0);});
+    el.addEventListener("keydown",e=>{if(e.key==="Enter"&&!c&&!e.isComposing&&e.keyCode!==229){e.preventDefault();handleAddWeek(wKey);}});
     el.addEventListener("input",e=>{
       const v=e.target.value;
       const wi={...S.weekInputs};
@@ -520,7 +518,7 @@ function attachListeners(){
       }
       wi[wKey]=v;S.weekInputs=wi;
     });
-    el.addEventListener("keydown",e=>{if(e.key==="Enter"&&!c)handleAddWeek(wKey);});
+    el.addEventListener("keydown",e=>{if(e.key==="Enter"&&!c&&!e.isComposing&&e.keyCode!==229)handleAddWeek(wKey);});
     el.addEventListener("input",e=>{const wi={...S.weekInputs};wi[wKey]=e.target.value;S.weekInputs=wi;});
   });
 }
