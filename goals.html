@@ -77,7 +77,7 @@ const TABS=["習慣","今日","今週","今月","今年","完了"];
 const DAYS=["日","月","火","水","木","金","土"];
 
 // GAS
-async function loadGAS(){try{const r=await fetch(GAS_URL);const j=await r.json();if(j.ok&&Array.isArray(j.data)&&j.data.length>0)return j.data;}catch(e){}return null;}
+async function loadGAS(){try{const r=await fetch(GAS_URL+"?t="+Date.now(),{cache:"no-store"});const j=await r.json();if(j.ok&&Array.isArray(j.data)&&j.data.length>0)return j.data;}catch(e){}return null;}
 async function saveGAS(d){
   try{
     await fetch(GAS_URL,{
